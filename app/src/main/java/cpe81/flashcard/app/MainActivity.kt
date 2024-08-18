@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        flashCardViewModel.loadDefaultNotesIfNoneExist()
 
 
         setContent {
