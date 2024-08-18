@@ -21,10 +21,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cpe81.flashcard.app.screens.CreateFlashCard
+import cpe81.flashcard.app.screens.EditFlashCard
 import cpe81.flashcard.app.screens.FlashCardList
 import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
 import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
+import cpe81.flashcard.app.viewmodels.EditFlashCardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -62,6 +64,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         val createFlashCardViewModel: CreateFlashCardViewModel = viewModel()
+                        val editFlashCardViewModel: EditFlashCardViewModel = viewModel()
                         NavHost(navController = navController, startDestination = "Home") {
                             composable("Home") {
                                 Home(navController = navController)
@@ -94,6 +97,13 @@ class MainActivity : ComponentActivity() {
                                         flashCardViewModel.createFlashCard(question, answers, correctAnswerIndex)
                                     }
                                 )
+                            }
+                            composable("EditFlashCard/{flashCardId}", arguments = listOf(navArgument("flashCardId") {
+                                type = NavType.StringType
+                            })
+                            ) { backStackEntry ->
+                                val flashCardId = backStackEntry.arguments?.getString("flashCardId")
+                                flashCardId?.let { flashCardIdParam: String -> EditFlashCard(flashCardIdParam, editFlashCardViewModel, flashCardViewModel, navController = navController) }
                             }
                         }
                     }

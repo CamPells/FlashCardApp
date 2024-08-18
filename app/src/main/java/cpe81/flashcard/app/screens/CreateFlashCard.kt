@@ -41,8 +41,6 @@ fun CreateFlashCard(
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
-
-        // Display answers
         answers.forEachIndexed { index, answer ->
             OutlinedTextField(
                 value = answer,
@@ -58,8 +56,6 @@ fun CreateFlashCard(
                     .padding(bottom = 8.dp)
             )
         }
-
-        // Add Answer Button
         if (answers.size < 4) {
             Button(
                 onClick = {
@@ -72,8 +68,6 @@ fun CreateFlashCard(
                 Text("Add Answer")
             }
         }
-
-        // Display correct answer options
         Text("Select the Correct Answer:")
         answers.forEachIndexed { index, _ ->
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -84,8 +78,6 @@ fun CreateFlashCard(
                 Text("Answer ${index + 1}")
             }
         }
-
-        // Save Button
         Button(
             onClick = {
                 if (question.isNotBlank() && answers.all { it.isNotBlank() } && answers.size >= 2 && correctAnswerIndex != null) {

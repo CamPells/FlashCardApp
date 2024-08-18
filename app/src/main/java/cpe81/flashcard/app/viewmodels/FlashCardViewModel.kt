@@ -56,7 +56,12 @@ class FlashCardViewModel(
 
     fun getFlashCardById(flashCardId: Int?) = viewModelScope.launch {
         if (flashCardId != null) {
-            _selectedFlashCard.value = flashCardStorage.get { it.id == flashCardId }.first()
+            try {
+                _selectedFlashCard.value = flashCardStorage.get { it.id == flashCardId }.first()
+            } catch (e: NoSuchElementException) {
+                Log.e("FLASH_CARD_VIEW_MODEL", "Flash card not found: $flashCardId")
+                _selectedFlashCard.value = null
+            }
         } else {
             _selectedFlashCard.value = null
         }
