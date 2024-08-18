@@ -3,34 +3,95 @@ package cpe81.flashcard.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import cpe81.flashcard.app.screens.CreateFlashCard
+import cpe81.flashcard.app.viewmodels.FlashCardViewModel
+import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
 import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val flashCardViewModel: FlashCardViewModel by koinViewModel()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+
         setContent {
             FlashCardAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomePage(modifier = Modifier.padding(innerPadding))
+                val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("FlashCard App") },
+                            navigationIcon = {
+                                if (currentRoute != "Home") {
+                                    IconButton(onClick = { navController.popBackStack() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.ArrowBack,
+                                            contentDescription = "Back"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        val createFlashCardViewModel: CreateFlashCardViewModel = viewModel()
+                        NavHost(navController = navController, startDestination = "Home") {
+                            composable("Home") {
+                                Home(navController = navController)
+                            }
+                            composable(
+                                "FlashCard/{flashCardId}",
+                                arguments = listOf(navArgument("flashCardId") {
+                                    type = NavType.IntType
+                                })
+                            ) { backStackEntry ->
+                                val flashCardId = backStackEntry.arguments?.getInt("flashCardId")
+                                flashCardId?.let { flashCardIdParam ->
+                                    // Implement your FlashCardDetail screen here
+                                    Text("Flash Card Detail for ID: $flashCardIdParam")
+                                }
+                            }
+                            composable("CreateFlashCard") {
+                                CreateFlashCard(
+                                    navController = navController,
+                                    question = createFlashCardViewModel.question,
+                                    onQuestionChange = { createFlashCardViewModel.updateQuestion(it) },
+                                    answers = createFlashCardViewModel.answers,
+                                    onAnswersChange = { createFlashCardViewModel.updateAnswers(it) },
+                                    correctAnswerIndex = createFlashCardViewModel.correctAnswerIndex,
+                                    onCorrectAnswerIndexChange = { createFlashCardViewModel.updateCorrectAnswerIndex(it) },
+                                    createFlashCardFn = { question, answers, correctAnswerIndex ->
+                                        flashCardViewModel.createFlashCard(question, answers, correctAnswerIndex)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -38,42 +99,24 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomePage(modifier: Modifier = Modifier) {
+fun Home(navController: NavController) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text ="FlashCard App")
+        Text("Welcome to FlashCard App")
         Button(
-            onClick = { /* Navigate to View Flash Cards screen */ },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { navController.navigate("CreateFlashCard") },
+            modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            Text(text = "View Flash Cards")
+            Text("Create Flash Card")
         }
-        Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { /* Navigate to Create Flash Card screen */ },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { navController.navigate("FlashCard/1") },
+            modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            Text(text = "Create Flash Card")
+            Text("View Flash Card")
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { /* Navigate to Play Flash Cards screen */ },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Play Flash Cards")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePagePreview() {
-    FlashCardAppTheme {
-        HomePage()
     }
 }
