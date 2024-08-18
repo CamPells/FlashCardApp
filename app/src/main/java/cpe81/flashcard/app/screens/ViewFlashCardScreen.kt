@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -55,6 +56,7 @@ fun FlashCardList(navController: NavController, flashCardViewModel: FlashCardVie
 @Composable
 fun FlashCardItem(navController: NavController, flashCard: FlashCard, deleteFn: (id: Int) -> Unit) {
     val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -86,7 +88,37 @@ fun FlashCardItem(navController: NavController, flashCard: FlashCard, deleteFn: 
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
+                IconButton(
+                    onClick = { showDeleteDialog = true }
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Flash Card") },
+            text = { Text("Are you sure you want to delete this flash card?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        deleteFn(flashCard.id)
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

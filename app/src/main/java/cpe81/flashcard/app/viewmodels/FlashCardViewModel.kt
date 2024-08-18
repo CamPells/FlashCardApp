@@ -63,13 +63,14 @@ class FlashCardViewModel(
     }
 
     fun deleteFlashCardById(flashCardId: Int?) = viewModelScope.launch {
-        Log.d("FLASH_CARD_VIEW_MODEL", "Deleting flash card: $flashCardId")
-        if (flashCardId != null) {
-            flashCardStorage.delete(flashCardId)
-            flashCardStorage.getAll().catch { Log.e("FLASH_CARD_VIEW_MODEL", it.toString()) }
-                .collect { _flashCards.emit(it) }
+        flashCardId?.let { id ->
+            flashCardStorage.delete(id).collect { result ->
+                Log.d("FLASH_CARD_VIEW_MODEL", "Delete result for ID $id: $result")
+                getFlashCards()
+            }
         }
     }
+
 
     fun editFlashCardById(flashCardId: Int?, flashCard: FlashCard) = viewModelScope.launch {
         Log.d("FLASH_CARD_VIEW_MODEL", "Editing flash card: $flashCardId")
