@@ -2,6 +2,8 @@ package cpe81.flashcard.app.screens
 
 import android.app.AlertDialog
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,10 +25,13 @@ fun CreateFlashCard(
     createFlashCardFn: (String, List<String>, Int) -> Unit
 ) {
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(scrollState)
     ) {
         OutlinedTextField(
             value = question,
@@ -37,6 +42,7 @@ fun CreateFlashCard(
                 .padding(bottom = 8.dp)
         )
 
+        // Display answers
         answers.forEachIndexed { index, answer ->
             OutlinedTextField(
                 value = answer,
@@ -53,17 +59,21 @@ fun CreateFlashCard(
             )
         }
 
-        Button(
-            onClick = {
-                onAnswersChange(answers + "")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Text("Add Answer")
+        // Add Answer Button
+        if (answers.size < 4) {
+            Button(
+                onClick = {
+                    onAnswersChange(answers + "")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                Text("Add Answer")
+            }
         }
 
+        // Display correct answer options
         Text("Select the Correct Answer:")
         answers.forEachIndexed { index, _ ->
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -75,6 +85,7 @@ fun CreateFlashCard(
             }
         }
 
+        // Save Button
         Button(
             onClick = {
                 if (question.isNotBlank() && answers.all { it.isNotBlank() } && answers.size >= 2 && correctAnswerIndex != null) {
@@ -84,7 +95,7 @@ fun CreateFlashCard(
                         .setCancelable(false)
                         .setPositiveButton("Ok") { dialog, _ ->
                             onQuestionChange("")
-                            onAnswersChange(listOf("", ""))
+                            onAnswersChange(listOf("", "", "", "")) // Reset answers to 4 empty strings
                             onCorrectAnswerIndexChange(-1)
                             navController.navigate("Home")
                         }

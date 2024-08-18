@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cpe81.flashcard.app.screens.CreateFlashCard
+import cpe81.flashcard.app.screens.FlashCardList
 import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
 import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
@@ -76,6 +77,9 @@ class MainActivity : ComponentActivity() {
                                     Text("Flash Card Detail for ID: $flashCardIdParam")
                                 }
                             }
+                            composable("FlashCardList") {
+                                FlashCardList(navController = navController, flashCardViewModel = flashCardViewModel)
+                            }
                             composable("CreateFlashCard") {
                                 CreateFlashCard(
                                     navController = navController,
@@ -113,7 +117,7 @@ fun Home(navController: NavController) {
             Text("Create Flash Card")
         }
         Button(
-            onClick = { navController.navigate("FlashCard/1") },
+            onClick = { navController.navigate("FlashCardList") },
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Text("View Flash Card")

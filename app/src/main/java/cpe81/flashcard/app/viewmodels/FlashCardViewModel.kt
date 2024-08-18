@@ -23,38 +23,20 @@ class FlashCardViewModel(
     private val _selectedFlashCard = MutableStateFlow<FlashCard?>(null)
     val selectedFlashCard: StateFlow<FlashCard?> get() = _selectedFlashCard
 
-    init {
-        loadDefaultFlashCardsIfNoneExist()
-    }
 
     fun getFlashCards() = viewModelScope.launch {
         flashCardStorage.getAll().catch { Log.e("FLASH_CARD_VIEW_MODEL", it.toString()) }
             .collect { _flashCards.emit(it) }
     }
 
-    private fun loadDefaultFlashCardsIfNoneExist() = viewModelScope.launch {
-        val currentFlashCards = flashCardStorage.getAll().first()
-        if (currentFlashCards.isEmpty()) {
-            Log.d("FLASH_CARD_VIEW_MODEL", "Inserting default flash cards...")
-            val defaultFlashCards = listOf(
-                FlashCard(
-                    id = Random.nextInt(0, Int.MAX_VALUE),
-                    question = "What is the capital of France?",
-                    answers = listOf("Paris", "London", "Berlin", "Madrid"),
-                    correctAnswerIndex = 0
-                ),
-                FlashCard(
-                    id = Random.nextInt(0, Int.MAX_VALUE),
-                    question = "Who wrote 'To Kill a Mockingbird'?",
-                    answers = listOf("Harper Lee", "Mark Twain", "J.K. Rowling", "Ernest Hemingway"),
-                    correctAnswerIndex = 0
-                )
-            )
-            flashCardStorage.insertAll(defaultFlashCards)
-                .catch { Log.w("FLASH_CARD_VIEW_MODEL", "Could not insert default flash cards") }
-                .collect {
-                    Log.d("FLASH_CARD_VIEW_MODEL", "Default flash cards inserted successfully")
-                    _flashCards.emit(defaultFlashCards)
+    fun loadDefaultNotesIfNoneExist() = viewModelScope.launch {
+        val currentNotes = flashCardStorage.getAll().first()
+        if (currentNotes.isEmpty()) {
+            Log.d("NOTE_VIEW_MODEL", "Inserting default notes...")
+            flashCardStorage.insertAll(FlashCard.getFlashCards())
+                .catch { Log.w("NOTE_VIEW_MODEL", "Could not insert default notes") }.collect {
+                    Log.d("NOTE_VIEW_MODEL", "Default notes inserted successfully")
+                    _flashCards.emit(FlashCard.getFlashCards())
                 }
         }
     }

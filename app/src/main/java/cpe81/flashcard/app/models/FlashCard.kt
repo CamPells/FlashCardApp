@@ -8,7 +8,7 @@ class FlashCard(
 ) : Identifiable {
 
     companion object {
-        fun getSampleFlashCards(): List<FlashCard> {
+        fun getFlashCards(): List<FlashCard> {
             return listOf(
                 FlashCard(
                     1,
