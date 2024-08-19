@@ -42,4 +42,9 @@ class EditFlashCardViewModel : ViewModel() {
             correctAnswerIndex = it.correctAnswerIndex
         }
     }
+    fun reset() {
+        question = ""
+        answers = listOf("", "", "", "")
+        correctAnswerIndex = 0
+    }
 }

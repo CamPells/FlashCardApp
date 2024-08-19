@@ -80,7 +80,7 @@ class FlashCardViewModel(
     fun editFlashCardById(flashCardId: Int?, flashCard: FlashCard) = viewModelScope.launch {
         Log.d("FLASH_CARD_VIEW_MODEL", "Editing flash card: $flashCardId")
         if (flashCardId != null) {
-            flashCardStorage.edit(flashCardId, flashCard)
+            flashCardStorage.edit(flashCardId, flashCard).collect()
             flashCardStorage.getAll().catch { Log.e("FLASH_CARD_VIEW_MODEL", it.toString()) }
                 .collect { _flashCards.emit(it) }
         }

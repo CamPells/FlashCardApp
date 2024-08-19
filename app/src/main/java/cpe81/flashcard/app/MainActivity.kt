@@ -23,15 +23,18 @@ import androidx.navigation.navArgument
 import cpe81.flashcard.app.screens.CreateFlashCard
 import cpe81.flashcard.app.screens.EditFlashCard
 import cpe81.flashcard.app.screens.FlashCardList
+import cpe81.flashcard.app.screens.PlayFlashCardScreen
 import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
 import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
 import cpe81.flashcard.app.viewmodels.EditFlashCardViewModel
+import cpe81.flashcard.app.viewmodels.PlayFlashCardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val flashCardViewModel: FlashCardViewModel by koinViewModel()
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +64,8 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                ) { innerPadding ->
+                ) {
+                    innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         val createFlashCardViewModel: CreateFlashCardViewModel = viewModel()
                         val editFlashCardViewModel: EditFlashCardViewModel = viewModel()
@@ -69,20 +73,13 @@ class MainActivity : ComponentActivity() {
                             composable("Home") {
                                 Home(navController = navController)
                             }
-                            composable(
-                                "FlashCard/{flashCardId}",
-                                arguments = listOf(navArgument("flashCardId") {
-                                    type = NavType.IntType
-                                })
-                            ) { backStackEntry ->
-                                val flashCardId = backStackEntry.arguments?.getInt("flashCardId")
-                                flashCardId?.let { flashCardIdParam ->
-                                    // Implement your FlashCardDetail screen here
-                                    Text("Flash Card Detail for ID: $flashCardIdParam")
-                                }
-                            }
                             composable("FlashCardList") {
                                 FlashCardList(navController = navController, flashCardViewModel = flashCardViewModel)
+                            }
+                            composable("PlayFlashCards") {
+                                val playViewModel: PlayFlashCardViewModel = viewModel()
+                                PlayFlashCardScreen(navController = navController, flashCardViewModel = flashCardViewModel, playViewModel = playViewModel
+                                )
                             }
                             composable("CreateFlashCard") {
                                 CreateFlashCard(
@@ -120,18 +117,37 @@ fun Home(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Welcome to FlashCard App")
+        Text(
+            "Welcome to FlashCard App",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
         Button(
             onClick = { navController.navigate("CreateFlashCard") },
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(vertical = 8.dp)
         ) {
             Text("Create Flash Card")
         }
+
         Button(
             onClick = { navController.navigate("FlashCardList") },
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(vertical = 8.dp)
         ) {
-            Text("View Flash Card")
+            Text("View Flash Cards")
+        }
+
+        Button(
+            onClick = { navController.navigate("PlayFlashCards") },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Play Flash Cards")
         }
     }
 }

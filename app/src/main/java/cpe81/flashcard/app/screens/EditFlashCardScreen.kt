@@ -24,11 +24,11 @@ fun EditFlashCard(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val selectedFlashCardState by flashCardViewModel.selectedFlashCard.collectAsState()
+    val selectedFlashCardState by flashCardViewModel.selectedFlashCard.collectAsState(null)
     val flashCard: FlashCard? = selectedFlashCardState
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(flashCard) {
+    LaunchedEffect(flashCard) {  // Get the default values for the note properties
         if (flashCard == null) {
             flashCardViewModel.getFlashCardById(flashCardId.toIntOrNull())
         } else {
