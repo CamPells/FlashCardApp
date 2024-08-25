@@ -28,12 +28,12 @@ fun EditFlashCard(
     val flashCard: FlashCard? = selectedFlashCardState
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(flashCard) {  // Get the default values for the note properties
-        if (flashCard == null) {
-            flashCardViewModel.getFlashCardById(flashCardId.toIntOrNull())
-        } else {
-            editFlashCardViewModel.setDefaultValues(flashCard)
-        }
+    LaunchedEffect(flashCardId) {
+        flashCardViewModel.getFlashCardById(flashCardId.toIntOrNull())
+    }
+
+    LaunchedEffect(flashCard) {
+        flashCard?.let { editFlashCardViewModel.setFlashCardData(it) }
     }
 
     Box(

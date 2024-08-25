@@ -16,12 +16,18 @@ class EditFlashCardViewModel : ViewModel() {
     var correctAnswerIndex by mutableStateOf(0)
         private set
 
+    private var currentFlashCardId by mutableStateOf<Int?>(null)
+
     fun updateQuestion(newQuestion: String) {
         question = newQuestion
     }
 
     fun updateAnswer(index: Int, newAnswer: String) {
         answers = answers.toMutableList().also { it[index] = newAnswer }
+    }
+
+    fun updateAnswers(newAnswers: List<String>) {
+        answers = newAnswers.padEnd(4, "")
     }
 
     fun updateCorrectAnswerIndex(newIndex: Int) {
@@ -35,16 +41,24 @@ class EditFlashCardViewModel : ViewModel() {
                 answers[correctAnswerIndex].isNotBlank()
     }
 
-    fun setDefaultValues(selectedFlashCard: FlashCard?) {
-        selectedFlashCard?.let {
-            question = it.question
-            answers = it.answers + List(4 - it.answers.size) { "" }
-            correctAnswerIndex = it.correctAnswerIndex
+    fun setFlashCardData(flashCard: FlashCard) {
+        if (flashCard.id != currentFlashCardId) {
+            reset()
+            question = flashCard.question
+            updateAnswers(flashCard.answers)
+            correctAnswerIndex = flashCard.correctAnswerIndex
+            currentFlashCardId = flashCard.id
         }
     }
+
     fun reset() {
         question = ""
         answers = listOf("", "", "", "")
         correctAnswerIndex = 0
+        currentFlashCardId = null
+    }
+
+    private fun List<String>.padEnd(length: Int, padding: String): List<String> {
+        return this + List(maxOf(0, length - this.size)) { padding }
     }
 }
