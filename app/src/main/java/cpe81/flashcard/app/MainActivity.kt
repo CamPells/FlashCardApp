@@ -3,6 +3,7 @@ package cpe81.flashcard.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -28,17 +30,29 @@ import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
 import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
 import cpe81.flashcard.app.viewmodels.EditFlashCardViewModel
+import cpe81.flashcard.app.viewmodels.MainViewModel
 import cpe81.flashcard.app.viewmodels.PlayFlashCardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val flashCardViewModel: FlashCardViewModel by koinViewModel()
+    private val mainViewModel: MainViewModel by viewModels<MainViewModel>()
 
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Show splash screen for 3 seconds
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                val elapsedTime = System.currentTimeMillis() - mainViewModel.startTime
+                elapsedTime < 3000 // 3 seconds
+            }
+        }
+
+
         flashCardViewModel.loadDefaultNotesIfNoneExist()
 
 
