@@ -16,12 +16,15 @@ class PlayFlashCardViewModel : ViewModel() {
         private set
     var isGameFinished by mutableStateOf(false)
         private set
+    private var isInitialized by mutableStateOf(false)
+    var wrongAnswers by mutableStateOf<List<FlashCard>>(emptyList())
+        private set
 
     fun loadFlashCards(cards: List<FlashCard>) {
-        flashCards = cards.shuffled()
-        currentIndex = 0
-        score = 0
-        isGameFinished = false
+        if (!isInitialized) {
+            flashCards = cards.shuffled()
+            resetGame()
+        }
     }
 
     fun getCurrentFlashCard(): FlashCard? = flashCards.getOrNull(currentIndex)
@@ -33,7 +36,11 @@ class PlayFlashCardViewModel : ViewModel() {
     fun submitAnswer(): Boolean {
         val currentCard = getCurrentFlashCard() ?: return false
         val isCorrect = selectedAnswerIndex == currentCard.correctAnswerIndex
-        if (isCorrect) score++
+        if (isCorrect) {
+            score++
+        } else {
+            wrongAnswers = wrongAnswers + currentCard
+        }
 
         if (currentIndex < flashCards.size - 1) {
             currentIndex++
@@ -48,4 +55,13 @@ class PlayFlashCardViewModel : ViewModel() {
     fun getProgress(): String = "${currentIndex + 1}/${flashCards.size}"
 
     fun canSubmit(): Boolean = selectedAnswerIndex != null
+
+    fun resetGame() {
+        currentIndex = 0
+        selectedAnswerIndex = null
+        score = 0
+        isGameFinished = false
+        wrongAnswers = emptyList()
+        isInitialized = true
+    }
 }
