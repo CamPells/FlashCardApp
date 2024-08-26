@@ -25,8 +25,11 @@ class PlayFlashCardViewModel : ViewModel() {
     private var isInitialized by mutableStateOf(false)
     var wrongAnswers by mutableStateOf<List<FlashCard>>(emptyList())
         private set
+    var currentStreak by mutableStateOf(0)
+        private set
+    var bestStreak by mutableStateOf(0)
+        private set
 
-    // Timer related properties
     var elapsedTime by mutableStateOf(0L)
         private set
     private var timerJob: Job? = null
@@ -49,6 +52,9 @@ class PlayFlashCardViewModel : ViewModel() {
         val isCorrect = selectedAnswerIndex == currentCard.correctAnswerIndex
         if (isCorrect) {
             score++
+            currentStreak++
+            if (currentStreak > bestStreak) {
+                bestStreak = currentStreak}
         } else {
             wrongAnswers = wrongAnswers + currentCard
         }
@@ -58,6 +64,7 @@ class PlayFlashCardViewModel : ViewModel() {
             selectedAnswerIndex = null
         } else {
             finishGame()
+            currentStreak = 0
         }
 
         return isCorrect
@@ -76,6 +83,7 @@ class PlayFlashCardViewModel : ViewModel() {
         isInitialized = true
         elapsedTime = 0L
         startTimer()
+        currentStreak = 0
     }
 
     private fun startTimer() {

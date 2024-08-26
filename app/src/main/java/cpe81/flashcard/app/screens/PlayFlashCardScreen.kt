@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -45,6 +48,7 @@ fun PlayFlashCardScreen(
             totalQuestions = flashCards.size,
             wrongAnswers = playViewModel.wrongAnswers,
             elapsedTime = playViewModel.getFormattedTime(),
+            bestStreak = playViewModel.bestStreak,
             onPlayAgain = { playViewModel.resetGame() },
             onBackToHome = { navController.popBackStack() }
         )
@@ -56,10 +60,31 @@ fun PlayFlashCardScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Time: ${playViewModel.getFormattedTime()}",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Time: ${playViewModel.getFormattedTime()}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocalFireDepartment,
+                        contentDescription = "Streak",
+                        tint = Color.Red,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${playViewModel.currentStreak}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
 
             Text(
                 text = "Progress: ${playViewModel.getProgress()}",
@@ -117,12 +142,14 @@ fun PlayFlashCardScreen(
         }
     }
 }
+
 @Composable
 fun GameSummaryScreen(
     score: Int,
     totalQuestions: Int,
     wrongAnswers: List<FlashCard>,
     elapsedTime: String,
+    bestStreak: Int,
     onPlayAgain: () -> Unit,
     onBackToHome: () -> Unit
 ) {
@@ -147,6 +174,22 @@ fun GameSummaryScreen(
             text = "Time taken: $elapsedTime",
             style = MaterialTheme.typography.titleMedium
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.LocalFireDepartment,
+                contentDescription = "Best Streak",
+                tint = Color.Red,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Best Streak: $bestStreak",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
 
         if (wrongAnswers.isNotEmpty()) {
             Text(
@@ -186,6 +229,49 @@ fun GameSummaryScreen(
             Button(onClick = onBackToHome) {
                 Text("Back to Home")
             }
+        }
+    }
+}
+@Composable
+fun ChoosePlayOptionScreen(
+    navController: NavController,
+    onPlayModeSelected: (Boolean) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Choose Play Mode",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        Button(
+            onClick = {
+                onPlayModeSelected(true)
+                navController.navigate("PlayFlashCards")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Shuffled")
+        }
+
+        Button(
+            onClick = {
+                onPlayModeSelected(false)
+                navController.navigate("PlayFlashCards")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("In Order")
         }
     }
 }
