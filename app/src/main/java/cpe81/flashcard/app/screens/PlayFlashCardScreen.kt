@@ -101,7 +101,12 @@ fun PlayFlashCardScreen(
                             val isCorrect = playViewModel.submitAnswer()
                             if (isCorrect) {
                                 SoundPlayer.playCorrectSound(context)
+                                Toast.makeText(context, "Correct!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Incorrect", Toast.LENGTH_SHORT).show()
                             }
+                        } else {
+                            Toast.makeText(context, "Please select an answer", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
