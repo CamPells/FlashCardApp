@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +29,25 @@ fun CreateFlashCard(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
+    fun removeAnswer(index: Int) {
+        if (answers.size > 2) {
+            val updatedAnswers = answers.toMutableList().apply {
+                removeAt(index)
+            }
+            onAnswersChange(updatedAnswers)
+            // Adjust correctAnswerIndex if necessary
+            if (correctAnswerIndex == index) {
+                onCorrectAnswerIndexChange(-1)
+            } else if (correctAnswerIndex != null) {
+                if (correctAnswerIndex > index) {
+                    onCorrectAnswerIndexChange(correctAnswerIndex - 1)
+                }
+            }
+        } else {
+            Toast.makeText(context, "You must have at least two answers", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,19 +63,31 @@ fun CreateFlashCard(
                 .padding(bottom = 8.dp)
         )
         answers.forEachIndexed { index, answer ->
-            OutlinedTextField(
-                value = answer,
-                onValueChange = { newAnswer ->
-                    val updatedAnswers = answers.toMutableList().apply {
-                        this[index] = newAnswer
-                    }
-                    onAnswersChange(updatedAnswers)
-                },
-                label = { Text("Answer ${index + 1}") },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
+                    .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = answer,
+                    onValueChange = { newAnswer ->
+                        val updatedAnswers = answers.toMutableList().apply {
+                            this[index] = newAnswer
+                        }
+                        onAnswersChange(updatedAnswers)
+                    },
+                    label = { Text("Answer ${index + 1}") },
+                    modifier = Modifier
+                        .weight(1f)
+                )
+                IconButton(
+                    onClick = { removeAnswer(index) },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
+            }
         }
         if (answers.size < 4) {
             Button(
@@ -94,7 +127,7 @@ fun CreateFlashCard(
                         createFlashCardFn(question, answers, correctAnswerIndex)
                         Toast.makeText(context, "Flash card created successfully!", Toast.LENGTH_SHORT).show()
                         onQuestionChange("")
-                        onAnswersChange(listOf("", "", "", "")) // Reset answers to 4 empty strings
+                        onAnswersChange(listOf("", "", "", ""))
                         onCorrectAnswerIndexChange(-1)
                         navController.navigate("Home")
                     }
