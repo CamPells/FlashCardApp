@@ -44,6 +44,7 @@ fun PlayFlashCardScreen(
             score = playViewModel.score,
             totalQuestions = flashCards.size,
             wrongAnswers = playViewModel.wrongAnswers,
+            elapsedTime = playViewModel.getFormattedTime(),
             onPlayAgain = { playViewModel.resetGame() },
             onBackToHome = { navController.popBackStack() }
         )
@@ -55,60 +56,58 @@ fun PlayFlashCardScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (flashCards.isNotEmpty()) {
+            Text(
+                text = "Time: ${playViewModel.getFormattedTime()}",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = "Progress: ${playViewModel.getProgress()}",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            if (currentCard != null) {
                 Text(
-                    text = "Progress: ${playViewModel.getProgress()}",
-                    style = MaterialTheme.typography.titleMedium
+                    text = currentCard.question,
+                    style = MaterialTheme.typography.headlineMedium
                 )
 
-                if (currentCard != null) {
-                    Text(
-                        text = currentCard.question,
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-
-                    currentCard.answers.forEachIndexed { index, answer ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = playViewModel.selectedAnswerIndex == index,
-                                    onClick = { playViewModel.selectAnswer(index) }
-                                )
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
+                currentCard.answers.forEachIndexed { index, answer ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
                                 selected = playViewModel.selectedAnswerIndex == index,
                                 onClick = { playViewModel.selectAnswer(index) }
                             )
-                            Text(
-                                text = answer,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                    }
-
-                    Button(
-                        onClick = {
-                            if (playViewModel.canSubmit()) {
-                                val isCorrect = playViewModel.submitAnswer()
-                                val message = if (isCorrect) "Correct!" else "Incorrect."
-                                if(isCorrect){SoundPlayer.playCorrectSound(context)}
-                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Please select an answer", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Submit")
+                        RadioButton(
+                            selected = playViewModel.selectedAnswerIndex == index,
+                            onClick = { playViewModel.selectAnswer(index) }
+                        )
+                        Text(
+                            text = answer,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
                     }
                 }
-            } else {
-                Text("No flash cards available. Please create some flash cards first.")
+
+                Button(
+                    onClick = {
+                        if (playViewModel.canSubmit()) {
+                            val isCorrect = playViewModel.submitAnswer()
+                            if (isCorrect) {
+                                SoundPlayer.playCorrectSound(context)
+                            }
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Submit")
+                }
             }
         }
     }
@@ -118,6 +117,7 @@ fun GameSummaryScreen(
     score: Int,
     totalQuestions: Int,
     wrongAnswers: List<FlashCard>,
+    elapsedTime: String,
     onPlayAgain: () -> Unit,
     onBackToHome: () -> Unit
 ) {
@@ -136,6 +136,11 @@ fun GameSummaryScreen(
         Text(
             text = "Score: $score / $totalQuestions",
             style = MaterialTheme.typography.titleLarge
+        )
+
+        Text(
+            text = "Time taken: $elapsedTime",
+            style = MaterialTheme.typography.titleMedium
         )
 
         if (wrongAnswers.isNotEmpty()) {

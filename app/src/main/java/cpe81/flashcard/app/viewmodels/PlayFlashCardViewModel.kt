@@ -5,7 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import cpe81.flashcard.app.models.FlashCard
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class PlayFlashCardViewModel : ViewModel() {
@@ -21,6 +25,11 @@ class PlayFlashCardViewModel : ViewModel() {
     private var isInitialized by mutableStateOf(false)
     var wrongAnswers by mutableStateOf<List<FlashCard>>(emptyList())
         private set
+
+    // Timer related properties
+    var elapsedTime by mutableStateOf(0L)
+        private set
+    private var timerJob: Job? = null
 
     fun loadFlashCards(cards: List<FlashCard>) {
         if (!isInitialized) {
@@ -48,7 +57,7 @@ class PlayFlashCardViewModel : ViewModel() {
             currentIndex++
             selectedAnswerIndex = null
         } else {
-            isGameFinished = true
+            finishGame()
         }
 
         return isCorrect
@@ -65,5 +74,38 @@ class PlayFlashCardViewModel : ViewModel() {
         isGameFinished = false
         wrongAnswers = emptyList()
         isInitialized = true
+        elapsedTime = 0L
+        startTimer()
     }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                elapsedTime += 1000
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+    }
+
+    private fun finishGame() {
+        isGameFinished = true
+        stopTimer()
+    }
+
+    fun getFormattedTime(): String {
+        val seconds = (elapsedTime / 1000) % 60
+        val minutes = (elapsedTime / (1000 * 60)) % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopTimer()
+    }
+
 }
