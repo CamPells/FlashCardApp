@@ -35,7 +35,6 @@ fun CreateFlashCard(
                 removeAt(index)
             }
             onAnswersChange(updatedAnswers)
-            // Adjust correctAnswerIndex if necessary
             if (correctAnswerIndex == index) {
                 onCorrectAnswerIndexChange(-1)
             } else if (correctAnswerIndex != null) {

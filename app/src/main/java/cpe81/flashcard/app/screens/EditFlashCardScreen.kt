@@ -45,7 +45,7 @@ fun EditFlashCard(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(bottom = 80.dp) // Add padding at the bottom for the button
+                .padding(bottom = 80.dp)
         ) {
             OutlinedTextField(
                 value = editFlashCardViewModel.question,
