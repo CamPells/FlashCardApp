@@ -15,6 +15,7 @@ import androidx.navigation.NavController
 import cpe81.flashcard.app.models.FlashCard
 import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.PlayFlashCardViewModel
+import cpe81.flashcard.app.components.SoundPlayer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +95,7 @@ fun PlayFlashCardScreen(
                             if (playViewModel.canSubmit()) {
                                 val isCorrect = playViewModel.submitAnswer()
                                 val message = if (isCorrect) "Correct!" else "Incorrect."
+                                if(isCorrect){SoundPlayer.playCorrectSound(context)}
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(context, "Please select an answer", Toast.LENGTH_SHORT)

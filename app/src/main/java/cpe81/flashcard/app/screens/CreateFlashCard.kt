@@ -1,6 +1,6 @@
 package cpe81.flashcard.app.screens
 
-import android.app.AlertDialog
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -80,20 +80,24 @@ fun CreateFlashCard(
         }
         Button(
             onClick = {
-                if (question.isNotBlank() && answers.all { it.isNotBlank() } && answers.size >= 2 && correctAnswerIndex != null) {
-                    createFlashCardFn(question, answers, correctAnswerIndex)
-                    val builder = AlertDialog.Builder(context)
-                    builder.setMessage("Created flash card!")
-                        .setCancelable(false)
-                        .setPositiveButton("Ok") { dialog, _ ->
-                            onQuestionChange("")
-                            onAnswersChange(listOf("", "", "", "")) // Reset answers to 4 empty strings
-                            onCorrectAnswerIndexChange(-1)
-                            navController.navigate("Home")
-                        }
-                        .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-                    val alert = builder.create()
-                    alert.show()
+                when {
+                    question.isBlank() -> {
+                        Toast.makeText(context, "Please enter a question", Toast.LENGTH_SHORT).show()
+                    }
+                    answers.any { it.isBlank() } -> {
+                        Toast.makeText(context, "Please fill in all answers", Toast.LENGTH_SHORT).show()
+                    }
+                    correctAnswerIndex == null -> {
+                        Toast.makeText(context, "Please select the correct answer", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        createFlashCardFn(question, answers, correctAnswerIndex)
+                        Toast.makeText(context, "Flash card created successfully!", Toast.LENGTH_SHORT).show()
+                        onQuestionChange("")
+                        onAnswersChange(listOf("", "", "", "")) // Reset answers to 4 empty strings
+                        onCorrectAnswerIndexChange(-1)
+                        navController.navigate("Home")
+                    }
                 }
             },
             modifier = Modifier

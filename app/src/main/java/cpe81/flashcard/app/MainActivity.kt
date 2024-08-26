@@ -1,17 +1,20 @@
 package cpe81.flashcard.app
 
+import ModernPurpleAppTheme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,13 +25,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cpe81.flashcard.app.components.CustomButton
 import cpe81.flashcard.app.screens.CreateFlashCard
 import cpe81.flashcard.app.screens.EditFlashCard
 import cpe81.flashcard.app.screens.FlashCardList
 import cpe81.flashcard.app.screens.PlayFlashCardScreen
 import cpe81.flashcard.app.viewmodels.FlashCardViewModel
 import cpe81.flashcard.app.viewmodels.CreateFlashCardViewModel
-import cpe81.flashcard.app.ui.theme.FlashCardAppTheme
 import cpe81.flashcard.app.viewmodels.EditFlashCardViewModel
 import cpe81.flashcard.app.viewmodels.MainViewModel
 import cpe81.flashcard.app.viewmodels.PlayFlashCardViewModel
@@ -57,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            FlashCardAppTheme {
+            ModernPurpleAppTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -70,7 +73,7 @@ class MainActivity : ComponentActivity() {
                                 if (currentRoute != "Home") {
                                     IconButton(onClick = { navController.popBackStack() }) {
                                         Icon(
-                                            imageVector = Icons.Filled.ArrowBack,
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = "Back"
                                         )
                                     }
@@ -126,42 +129,39 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Home(navController: NavController) {
-    Column(
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text(
-            "Welcome to FlashCard App",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        Button(
-            onClick = { navController.navigate("CreateFlashCard") },
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(vertical = 8.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Create Flash Card")
-        }
+            Text(
+                "Welcome to FlashCard App",
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
 
-        Button(
-            onClick = { navController.navigate("FlashCardList") },
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(vertical = 8.dp)
-        ) {
-            Text("View Flash Cards")
-        }
+            CustomButton(
+                text = "Create Flash Card",
+                onClick = { navController.navigate("CreateFlashCard") }
+            )
 
-        Button(
-            onClick = { navController.navigate("PlayFlashCards") },
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(vertical = 8.dp)
-        ) {
-            Text("Play Flash Cards")
+            CustomButton(
+                text = "View Flash Cards",
+                onClick = { navController.navigate("FlashCardList") }
+            )
+
+            CustomButton(
+                text = "Play Flash Cards",
+                onClick = { navController.navigate("PlayFlashCards") }
+            )
         }
     }
 }

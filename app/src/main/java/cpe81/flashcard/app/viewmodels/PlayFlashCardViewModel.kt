@@ -3,8 +3,10 @@ package cpe81.flashcard.app.viewmodels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+
 import androidx.lifecycle.ViewModel
 import cpe81.flashcard.app.models.FlashCard
+
 
 class PlayFlashCardViewModel : ViewModel() {
     private var flashCards: List<FlashCard> = emptyList()
