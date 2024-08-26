@@ -35,9 +35,10 @@ fun PlayFlashCardScreen(
     }
 
     LaunchedEffect(flashCards) {
-        if (flashCards.isNotEmpty()) {
+        if(flashCards.isNotEmpty()) {
             playViewModel.loadFlashCards(flashCards)
         }
+
     }
 
     val currentCard = playViewModel.getCurrentFlashCard()
@@ -235,7 +236,7 @@ fun GameSummaryScreen(
 @Composable
 fun ChoosePlayOptionScreen(
     navController: NavController,
-    onPlayModeSelected: (Boolean) -> Unit
+    playViewModel: PlayFlashCardViewModel
 ) {
     Column(
         modifier = Modifier
@@ -252,7 +253,8 @@ fun ChoosePlayOptionScreen(
 
         Button(
             onClick = {
-                onPlayModeSelected(true)
+                playViewModel.setShuffledFlag()
+                playViewModel.setshuffle()
                 navController.navigate("PlayFlashCards")
             },
             modifier = Modifier
@@ -264,7 +266,7 @@ fun ChoosePlayOptionScreen(
 
         Button(
             onClick = {
-                onPlayModeSelected(false)
+                playViewModel.setShuffledFlag()
                 navController.navigate("PlayFlashCards")
             },
             modifier = Modifier

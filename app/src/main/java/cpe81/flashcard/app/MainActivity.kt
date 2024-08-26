@@ -26,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cpe81.flashcard.app.components.CustomButton
+import cpe81.flashcard.app.screens.ChoosePlayOptionScreen
 import cpe81.flashcard.app.screens.CreateFlashCard
 import cpe81.flashcard.app.screens.EditFlashCard
 import cpe81.flashcard.app.screens.FlashCardList
@@ -41,23 +42,20 @@ class MainActivity : ComponentActivity() {
 
     private val flashCardViewModel: FlashCardViewModel by koinViewModel()
     private val mainViewModel: MainViewModel by viewModels<MainViewModel>()
+    private val playViewModel: PlayFlashCardViewModel by viewModels()
 
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Show splash screen for 3 seconds
         installSplashScreen().apply {
             setKeepOnScreenCondition {
-                val elapsedTime = System.currentTimeMillis() - mainViewModel.startTime
-                elapsedTime < 3000 // 3 seconds
+                System.currentTimeMillis() - mainViewModel.startTime < 3000
             }
         }
 
-
         flashCardViewModel.loadDefaultNotesIfNoneExist()
-
 
         setContent {
             ModernPurpleAppTheme {
@@ -71,7 +69,12 @@ class MainActivity : ComponentActivity() {
                             title = { Text("FlashCard App") },
                             navigationIcon = {
                                 if (currentRoute != "Home") {
-                                    IconButton(onClick = { navController.popBackStack() }) {
+                                    IconButton(onClick = {
+                                        if (currentRoute == "PlayFlashCards") {
+                                            playViewModel.resetGame()
+                                        }
+                                        navController.popBackStack()
+                                    }) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = "Back"
@@ -81,8 +84,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                ) {
-                    innerPadding ->
+                ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         val createFlashCardViewModel: CreateFlashCardViewModel = viewModel()
                         val editFlashCardViewModel: EditFlashCardViewModel = viewModel()
@@ -93,9 +95,16 @@ class MainActivity : ComponentActivity() {
                             composable("FlashCardList") {
                                 FlashCardList(navController = navController, flashCardViewModel = flashCardViewModel)
                             }
+                            composable("ChoosePlayOption") {
+                                ChoosePlayOptionScreen(
+                                    navController = navController,playViewModel
+                                )
+                            }
                             composable("PlayFlashCards") {
-                                val playViewModel: PlayFlashCardViewModel = viewModel()
-                                PlayFlashCardScreen(navController = navController, flashCardViewModel = flashCardViewModel, playViewModel = playViewModel
+                                PlayFlashCardScreen(
+                                    navController = navController,
+                                    flashCardViewModel = flashCardViewModel,
+                                    playViewModel = playViewModel
                                 )
                             }
                             composable("CreateFlashCard") {
@@ -160,7 +169,7 @@ fun Home(navController: NavController) {
 
             CustomButton(
                 text = "Play Flash Cards",
-                onClick = { navController.navigate("PlayFlashCards") }
+                onClick = { navController.navigate("ChoosePlayOption") }
             )
         }
     }

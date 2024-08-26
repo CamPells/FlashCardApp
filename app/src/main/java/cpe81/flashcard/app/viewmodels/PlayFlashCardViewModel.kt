@@ -1,5 +1,6 @@
 package cpe81.flashcard.app.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,7 @@ import cpe81.flashcard.app.models.FlashCard
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.core.logger.Logger
 
 
 class PlayFlashCardViewModel : ViewModel() {
@@ -29,17 +31,38 @@ class PlayFlashCardViewModel : ViewModel() {
         private set
     var bestStreak by mutableStateOf(0)
         private set
+    var shuffleFlag by mutableStateOf(false)
+    var shuffle by mutableStateOf(false)
 
     var elapsedTime by mutableStateOf(0L)
         private set
     private var timerJob: Job? = null
 
     fun loadFlashCards(cards: List<FlashCard>) {
+        // stupid t
+        if (shuffleFlag) {
+            flashCards = if (shuffle) {
+                cards.shuffled()
+            } else {
+                cards.sortedBy { it.id }
+            }
+            shuffleFlag = false
+        }
+
+
         if (!isInitialized) {
-            flashCards = cards.shuffled()
-            resetGame()
+            flashCards = flashCards.ifEmpty {
+                if (shuffle) cards.shuffled() else cards.sortedBy { it.id }
+            }
+            isInitialized = true
         }
     }
+    fun setShuffledFlag() {
+        shuffleFlag = true
+    }
+    fun setshuffle(){shuffle = true}
+
+
 
     fun getCurrentFlashCard(): FlashCard? = flashCards.getOrNull(currentIndex)
 
@@ -80,10 +103,12 @@ class PlayFlashCardViewModel : ViewModel() {
         score = 0
         isGameFinished = false
         wrongAnswers = emptyList()
-        isInitialized = true
         elapsedTime = 0L
         startTimer()
         currentStreak = 0
+        shuffleFlag = false
+        shuffle = false
+
     }
 
     private fun startTimer() {
